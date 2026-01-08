@@ -10,3 +10,5 @@ To disable it, you have to admit defeat by typing:
 *"I am extremely weak, and I need a break. Please let me fail"*
 
 Get back to work.
+
+No humans were harmed in the making of this chrome extension.
