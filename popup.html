@@ -1,263 +1,318 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <style>
-    /* Dark Theme with Red Accents */
-    :root {
-      --bg-color: #0F0F0F;
-      --card-bg: #1A1A1A;
-      --text-color: #E0E0E0;
-      --sub-text: #A0A0A0;
-      --accent-red: #D32F2F;
-      --accent-red-hover: #B71C1C;
-      --input-bg: #2C2C2C;
-      --border-color: #333;
-    }
+  <head>
+    <style>
+      /* Dark Theme with Red Accents */
+      :root {
+        --bg-color: #0f0f0f;
+        --card-bg: #1a1a1a;
+        --text-color: #e0e0e0;
+        --sub-text: #a0a0a0;
+        --accent-red: #d32f2f;
+        --accent-red-hover: #b71c1c;
+        --input-bg: #2c2c2c;
+        --border-color: #333;
+      }
 
-    body {
-      width: 320px;
-      padding: 20px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      box-sizing: border-box;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-    }
-    
-    /* Utility */
-    .hidden { display: none !important; }
-    
-    /* Buttons */
-    .btn-icon {
-      cursor: pointer;
-      background: none;
-      border: 1px solid var(--border-color);
-      color: var(--sub-text);
-      font-size: 12px;
-      padding: 6px 10px;
-      border-radius: 4px;
-      transition: all 0.2s;
-    }
-    .btn-icon:hover {
-      color: var(--text-color);
-      border-color: var(--sub-text);
-    }
-    
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 25px;
-    }
-    h2 {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
+      body {
+        width: 320px;
+        padding: 20px;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        text-align: center;
+        margin: 0;
+        box-sizing: border-box;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+      }
 
-    /* Main View */
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 50px;
-      height: 28px;
-      margin-bottom: 10px;
-    }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #333;
-      transition: .4s;
-      border-radius: 34px;
-    }
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 20px;
-      width: 20px;
-      left: 4px; bottom: 4px;
-      background-color: #888;
-      transition: .4s;
-      border-radius: 50%;
-    }
-    
-    input:checked + .slider { background-color: rgba(211, 47, 47, 0.2); }
-    input:checked + .slider:before {
-      transform: translateX(22px);
-      background-color: var(--accent-red);
-    }
-    
-    #status {
-      font-weight: 500;
-      margin-bottom: 20px;
-      font-size: 14px;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-    
-    #challenge-section {
-      display: none;
-      margin-top: 20px;
-      border-top: 1px solid var(--border-color);
-      padding-top: 20px;
-      animation: fadeIn 0.3s ease-in-out;
-    }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      /* Utility */
+      .hidden {
+        display: none !important;
+      }
 
-    textarea {
-      width: 100%;
-      height: 80px;
-      margin-top: 10px;
-      resize: none;
-      font-size: 13px;
-      box-sizing: border-box;
-      background-color: var(--input-bg);
-      color: var(--text-color);
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      padding: 8px;
-      font-family: inherit;
-    }
-    textarea:focus {
-      outline: none;
-      border-color: var(--accent-red);
-    }
+      /* Buttons */
+      .btn-icon {
+        cursor: pointer;
+        background: none;
+        border: 1px solid var(--border-color);
+        color: var(--sub-text);
+        font-size: 12px;
+        padding: 6px 10px;
+        border-radius: 4px;
+        transition: all 0.2s;
+      }
+      .btn-icon:hover {
+        color: var(--text-color);
+        border-color: var(--sub-text);
+      }
 
-    .instruction {
-      font-size: 12px;
-      color: var(--sub-text);
-      margin-bottom: 8px;
-    }
-    .phrase-to-type {
-      font-style: italic;
-      color: var(--accent-red);
-      font-size: 12px;
-      margin: 10px 0;
-      user-select: none;
-      line-height: 1.4;
-      background: rgba(211, 47, 47, 0.1);
-      padding: 8px;
-      border-radius: 4px;
-    }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+      }
+      h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
 
-    /* Settings View */
-    #settings-view { text-align: left; }
-    
-    #add-site-form { display: flex; margin-bottom: 15px; }
-    
-    #new-site-input {
-      flex-grow: 1;
-      padding: 8px;
-      margin-right: 8px;
-      background-color: var(--input-bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-color);
-      border-radius: 4px;
-      font-size: 13px;
-    }
-    #new-site-input:focus {
-      outline: none;
-      border-color: var(--sub-text);
-    }
-    
-    #add-btn {
-      cursor: pointer;
-      padding: 0 15px;
-      background: var(--accent-red);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      transition: background 0.2s;
-    }
-    #add-btn:hover { background: var(--accent-red-hover); }
-    
-    .site-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      max-height: 250px;
-      overflow-y: auto;
-      border-top: 1px solid var(--border-color);
-    }
-    /* Custom Scrollbar */
-    .site-list::-webkit-scrollbar { width: 6px; }
-    .site-list::-webkit-scrollbar-track { background: var(--bg-color); }
-    .site-list::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+      /* Main View */
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 28px;
+        margin-bottom: 10px;
+      }
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
 
-    .site-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 5px;
-      border-bottom: 1px solid var(--border-color);
-      transition: background 0.2s;
-    }
-    .site-item:hover { background-color: var(--card-bg); }
-    
-    .site-name { font-size: 14px; color: var(--text-color); }
-    
-    .remove-btn {
-      color: var(--sub-text);
-      cursor: pointer;
-      font-size: 18px;
-      font-weight: bold;
-      padding: 0 8px;
-      line-height: 1;
-      transition: color 0.2s;
-    }
-    .remove-btn:hover { color: var(--accent-red); }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #333;
+        transition: 0.4s;
+        border-radius: 34px;
+      }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 4px;
+        bottom: 4px;
+        background-color: #888;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
 
-  </style>
-</head>
-<body>
+      input:checked + .slider {
+        background-color: rgba(211, 47, 47, 0.2);
+      }
+      input:checked + .slider:before {
+        transform: translateX(22px);
+        background-color: var(--accent-red);
+      }
 
-  <!-- MAIN VIEW -->
-  <div id="main-view">
-    <div class="header">
-      <h2>FThat</h2>
-      <button id="settings-btn" class="btn-icon">settings</button>
+      #status {
+        font-weight: 500;
+        margin-bottom: 20px;
+        font-size: 14px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      #challenge-section {
+        display: none;
+        margin-top: 20px;
+        border-top: 1px solid var(--border-color);
+        padding-top: 20px;
+        animation: fadeIn 0.3s ease-in-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      textarea {
+        width: 100%;
+        height: 80px;
+        margin-top: 10px;
+        resize: none;
+        font-size: 13px;
+        box-sizing: border-box;
+        background-color: var(--input-bg);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 8px;
+        font-family: inherit;
+      }
+      textarea:focus {
+        outline: none;
+        border-color: var(--accent-red);
+      }
+
+      .instruction {
+        font-size: 12px;
+        color: var(--sub-text);
+        margin-bottom: 8px;
+      }
+      .phrase-to-type {
+        font-style: italic;
+        color: var(--accent-red);
+        font-size: 12px;
+        margin: 10px 0;
+        user-select: none;
+        line-height: 1.4;
+        background: rgba(211, 47, 47, 0.1);
+        padding: 8px;
+        border-radius: 4px;
+      }
+
+      /* Settings View */
+      #settings-view {
+        text-align: left;
+      }
+
+      #add-site-form {
+        display: flex;
+        margin-bottom: 15px;
+      }
+
+      #new-site-input {
+        flex-grow: 1;
+        padding: 8px;
+        margin-right: 8px;
+        background-color: var(--input-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        border-radius: 4px;
+        font-size: 13px;
+      }
+      #new-site-input:focus {
+        outline: none;
+        border-color: var(--sub-text);
+      }
+
+      #add-btn {
+        cursor: pointer;
+        padding: 0 15px;
+        background: var(--accent-red);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        transition: background 0.2s;
+      }
+      #add-btn:hover {
+        background: var(--accent-red-hover);
+      }
+
+      .site-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: 250px;
+        overflow-y: auto;
+        border-top: 1px solid var(--border-color);
+      }
+      /* Custom Scrollbar */
+      .site-list::-webkit-scrollbar {
+        width: 6px;
+      }
+      .site-list::-webkit-scrollbar-track {
+        background: var(--bg-color);
+      }
+      .site-list::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 3px;
+      }
+
+      .site-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 5px;
+        border-bottom: 1px solid var(--border-color);
+        transition: background 0.2s;
+      }
+      .site-item:hover {
+        background-color: var(--card-bg);
+      }
+
+      .site-name {
+        font-size: 14px;
+        color: var(--text-color);
+      }
+
+      .remove-btn {
+        color: var(--sub-text);
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+        padding: 0 8px;
+        line-height: 1;
+        transition: color 0.2s;
+      }
+      .remove-btn:hover {
+        color: var(--accent-red);
+      }
+
+      #cheating-message {
+        display: none;
+        color: var(--accent-red);
+        font-size: 12px;
+        margin-top: 8px;
+        padding: 8px;
+        background: rgba(211, 47, 47, 0.1);
+        border: 1px solid var(--accent-red);
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- MAIN VIEW -->
+    <div id="main-view">
+      <div class="header">
+        <h2>FThat</h2>
+        <button id="settings-btn" class="btn-icon">settings</button>
+      </div>
+
+      <div id="status">Enabled</div>
+
+      <label class="switch">
+        <input type="checkbox" id="toggle" checked />
+        <span class="slider"></span>
+      </label>
+
+      <div id="challenge-section">
+        <div class="instruction">To disable, type the following exactly:</div>
+        <div class="phrase-to-type">
+          I am extremely weak, and I need a break. Please let me fail
+        </div>
+        <textarea id="challenge-input" placeholder="Type here..."></textarea>
+        <div id="cheating-message">Cheating is not allowed. Type it out.</div>
+      </div>
     </div>
 
-    <div id="status">Enabled</div>
+    <!-- SETTINGS VIEW -->
+    <div id="settings-view" class="hidden">
+      <div class="header">
+        <button id="back-btn" class="btn-icon">back</button>
+        <h2>Blocked Sites</h2>
+        <div style="width: 45px"></div>
+        <!-- Spacer for alignment -->
+      </div>
 
-    <label class="switch">
-      <input type="checkbox" id="toggle" checked>
-      <span class="slider"></span>
-    </label>
+      <div id="add-site-form">
+        <input type="text" id="new-site-input" placeholder="example.com" />
+        <button id="add-btn">Add</button>
+      </div>
 
-    <div id="challenge-section">
-      <div class="instruction">To disable, type the following exactly:</div>
-      <div class="phrase-to-type">I am extremely weak, and I need a break. Please let me fail</div>
-      <textarea id="challenge-input" placeholder="Type here..."></textarea>
-    </div>
-  </div>
-
-  <!-- SETTINGS VIEW -->
-  <div id="settings-view" class="hidden">
-    <div class="header">
-      <button id="back-btn" class="btn-icon">back</button>
-      <h2>Blocked Sites</h2>
-      <div style="width: 45px;"></div> <!-- Spacer for alignment -->
+      <ul id="site-list" class="site-list">
+        <!-- Generated via JS -->
+      </ul>
     </div>
 
-    <div id="add-site-form">
-      <input type="text" id="new-site-input" placeholder="example.com">
-      <button id="add-btn">Add</button>
-    </div>
-
-    <ul id="site-list" class="site-list">
-      <!-- Generated via JS -->
-    </ul>
-  </div>
-
-  <script src="popup.js"></script>
-</body>
+    <script src="popup.js"></script>
+  </body>
 </html>

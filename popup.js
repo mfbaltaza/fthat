@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const statusDiv = document.getElementById('status');
   const challengeSection = document.getElementById('challenge-section');
   const challengeInput = document.getElementById('challenge-input');
+  const cheatingMessage = document.getElementById('cheating-message');
   const settingsBtn = document.getElementById('settings-btn');
 
   // Settings View
@@ -44,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault(); // Stop the toggle from moving immediately
       toggle.checked = true; // Keep it visually on for now
       challengeSection.style.display = 'block';
+      cheatingMessage.style.display = 'none';
       challengeInput.value = '';
       challengeInput.focus();
     }
@@ -59,7 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Prevent Paste
   challengeInput.addEventListener('paste', (e) => {
     e.preventDefault();
-    alert("Cheating is not allowed. Type it out.");
+    cheatingMessage.style.display = 'block';
+    challengeInput.value = '';
   });
 
   function enableExtension() {
