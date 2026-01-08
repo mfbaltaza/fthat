@@ -1,14 +1,28 @@
 // background.js
 
 const DEFAULT_BLOCKED_SITES = ["facebook.com", "instagram.com", "x.com", "tiktok.com"];
+let storageUpdateQueue = Promise.resolve();
 
-// Initialize default state
+function queueStorageUpdate(updateFn) {
+  storageUpdateQueue = storageUpdateQueue.then(() => {
+    return new Promise((resolve) => {
+      chrome.storage.local.get(["isEnabled", "visitCounts", "lastResetDate", "blockedSites"], (data) => {
+        const result = updateFn(data);
+        if (result) {
+          chrome.storage.local.set(result, () => resolve());
+        } else {
+          resolve();
+        }
+      });
+    });
+  });
+}
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.get(["isEnabled", "visitCounts", "lastResetDate", "blockedSites"], (result) => {
     if (result.isEnabled === undefined) {
       chrome.storage.local.set({ isEnabled: true });
     }
-    // visitCounts will now be an object: { "facebook.com": 3, "x.com": 1 }
     if (result.visitCounts === undefined || typeof result.visitCounts === 'number') {
       chrome.storage.local.set({ visitCounts: {} });
     }
@@ -22,71 +36,54 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-function getDomainFromUrl(url) {
-  try {
-    const hostname = new URL(url).hostname;
-    // Simple extraction. "www.facebook.com" -> "facebook.com" logic could be added,
-    // but for now we'll match if the hostname *includes* the blocked string.
-    return hostname;
-  } catch (e) {
-    return null;
-  }
-}
-
-// Check if the current URL matches any of our blocked sites
 function findMatchingBlockedSite(url, blockedSites) {
   if (!url) return null;
   const hostname = getDomainFromUrl(url);
   if (!hostname) return null;
-
-  for (const site of blockedSites) {
-    if (hostname.includes(site)) {
-      return site; // Return the key (e.g., "facebook.com")
-    }
-  }
-  return null;
+  return matchesBlockedSite(hostname, blockedSites);
 }
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  // Only act on loading to catch them early
   if (changeInfo.status === 'loading' && tab.url) {
     checkAndAct(tabId, tab.url);
   }
 });
 
 function checkAndAct(tabId, url) {
-  chrome.storage.local.get(["isEnabled", "visitCounts", "lastResetDate", "blockedSites"], (data) => {
-    if (!data.isEnabled) return; // Extension disabled
+  queueStorageUpdate((data) => {
+    if (!data.isEnabled) return null;
 
     const blockedSites = data.blockedSites || DEFAULT_BLOCKED_SITES;
     const matchingSite = findMatchingBlockedSite(url, blockedSites);
 
-    // If this site isn't blocked, exit immediately
-    if (!matchingSite) return;
+    if (!matchingSite) return null;
 
     const today = new Date().toISOString().split('T')[0];
     let counts = data.visitCounts || {};
 
-    // Daily Reset check
     if (data.lastResetDate !== today) {
-      counts = {}; // Reset all counts
-      chrome.storage.local.set({ lastResetDate: today });
+      counts = {};
     }
 
-    // Get count for this specific site
     const currentCount = counts[matchingSite] || 0;
     const newCount = currentCount + 1;
-
-    // Update the counts object
     counts[matchingSite] = newCount;
-    chrome.storage.local.set({ visitCounts: counts });
+
+    const updates = { visitCounts: counts };
+    if (data.lastResetDate !== today) {
+      updates.lastResetDate = today;
+    }
 
     if (newCount <= 5) {
-      // Close the tab immediately
-      chrome.tabs.remove(tabId);
+      chrome.tabs.remove(tabId, () => {
+        if (chrome.runtime.lastError) {
+          console.log('Tab removal skipped:', chrome.runtime.lastError.message);
+        }
+      });
     } else {
-      // Allow to load. Content script handles the "Begging" screen.
-      console.log(`Limit reached for ${matchingSite}. Letting content script handle it.`);
+      chrome.tabs.sendMessage(tabId, { action: "showBlockScreen" }).catch(() => {});
     }
+
+    return updates;
   });
 }

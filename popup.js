@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let domain = rawInput;
     try {
       if (!domain.startsWith('http')) {
-        domain = 'http://' + domain;
+        domain = 'https://' + domain;
       }
       domain = new URL(domain).hostname;
     } catch (e) {

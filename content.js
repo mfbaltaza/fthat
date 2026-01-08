@@ -1,37 +1,10 @@
 // content.js
 
-function getDomainFromUrl(url) {
-  try {
-    return new URL(url).hostname;
-  } catch (e) {
-    return null;
-  }
-}
-
-chrome.storage.local.get(["isEnabled", "visitCounts", "blockedSites"], (data) => {
-  if (!data.isEnabled) return;
-
-  const blockedSites = data.blockedSites || [];
-  const currentHost = window.location.hostname;
-  
-  // Find which blocked site this is (if any)
-  const matchingSite = blockedSites.find(site => currentHost.includes(site));
-
-  if (!matchingSite) return; // Not a blocked site, exit immediately.
-
-  // Check the count for this specific site
-  const counts = data.visitCounts || {};
-  const siteCount = counts[matchingSite] || 0;
-
-  // If count > 5, we block the page
-  if (siteCount > 5) {
-    // Stop the window from loading further resources if possible
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "showBlockScreen") {
     window.stop();
-
-    // Nuke the DOM
     document.documentElement.innerHTML = "";
 
-    // Create the message container
     const container = document.createElement("div");
     container.style.display = "flex";
     container.style.justifyContent = "center";
@@ -49,20 +22,19 @@ chrome.storage.local.get(["isEnabled", "visitCounts", "blockedSites"], (data) =>
     container.style.position = "fixed";
     container.style.top = "0";
     container.style.left = "0";
-    container.style.zIndex = "2147483647"; // Max z-index
+    container.style.zIndex = "2147483647";
 
     const text = document.createElement("p");
-    text.textContent = "“Are you going to make us beg, dawg?”";
-    
+    text.textContent = "Are you going to make us beg, dawg?";
+
     container.appendChild(text);
-    
-    // Ensure we attach it somewhere valid
+
     if (document.body) {
-        document.body.appendChild(container);
+      document.body.appendChild(container);
     } else {
-        const body = document.createElement("body");
-        document.documentElement.appendChild(body);
-        body.appendChild(container);
+      const body = document.createElement("body");
+      document.documentElement.appendChild(body);
+      body.appendChild(container);
     }
   }
 });
