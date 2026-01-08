@@ -11,4 +11,4 @@ To disable it, you have to admit defeat by typing:
 
 Get back to work.
 
-No humans were harmed in the making of this chrome extension.
+_No humans were harmed in the making of this chrome extension._
